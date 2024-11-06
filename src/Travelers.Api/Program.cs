@@ -1,27 +1,39 @@
+using FastEndpoints;
+using FastEndpoints.Swagger;
+using Travelers.Api;
+using Travelers.Infrastructure;
 using Travelers.Infrastructure.Migrations;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+builder.Services.AddInfrastructure(builder.Configuration);
+builder.Services
+    .AddFastEndpoints()
+    .SwaggerDocument(c =>
+    {
+        c.DocumentSettings = s =>
+        {
+            s.Title = ApiConstants.ApiTitle;
+            s.Version = $"v{ApiConstants.ApiVersion}";
+            s.DocumentName = ApiConstants.ApiTitle;
+        };
+    });
+
+
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+app.UseFastEndpoints();
+
 if (app.Environment.IsDevelopment())
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
+    app.UseSwaggerGen();
 }
 
 app.UseHttpsRedirection();
 
-app.MapControllers();
-
 await MigrateDatabase();
-
 app.Run();
 
 async Task MigrateDatabase()
