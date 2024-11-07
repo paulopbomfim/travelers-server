@@ -12,7 +12,7 @@ public record User
     public string TxPassword { get; set; } = string.Empty;
     public string TxAvatarUrl { get; set; } = string.Empty;
     public string TxRole { get; set; } = Roles.Traveler;
-    public Guid UserIdentifier { get; set; }
-    public DateTime CreatedAt { get; set; }
-    public DateTime UpdatedAt { get; set; }
+    public Guid CoUserIdentifier { get; set; }
+    public DateTime CreatedAt { get; init; } = DateTime.UtcNow;
+    public DateTime? UpdatedAt { get; set; }
 }
