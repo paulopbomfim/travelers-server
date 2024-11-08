@@ -1,6 +1,8 @@
+using System.Text;
 using FastEndpoints;
-using FastEndpoints.Security;
 using FastEndpoints.Swagger;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
 using Travelers.Api;
 using Travelers.Application;
 using Travelers.Infrastructure;
@@ -14,9 +16,27 @@ builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.AddAuthorization();
 builder.Services.AddAuthentication();
 builder.Services.AddApplication();
+
 builder.Services
-    .AddAuthenticationJwtBearer(s => s.SigningKey = signingKey)
-    .AddAuthorization()
+    .AddAuthentication(config =>
+    {
+        config.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+        config.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+    })
+    .AddJwtBearer(config =>
+    {
+        config.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = false,
+            ValidateAudience = false,
+            ClockSkew = new TimeSpan(0),
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(signingKey!))
+        };
+    });
+
+builder.Services.AddAuthorization();
+
+builder.Services
     .AddFastEndpoints()
     .SwaggerDocument(c =>
     {
@@ -35,8 +55,9 @@ var app = builder.Build();
 
 app
     .UseAuthentication()
-    .UseAuthorization()
-    .UseFastEndpoints();
+    .UseAuthorization();
+
+app.UseFastEndpoints();
 
 if (app.Environment.IsDevelopment())
 {
