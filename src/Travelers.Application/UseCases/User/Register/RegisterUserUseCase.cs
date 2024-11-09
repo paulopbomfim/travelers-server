@@ -1,10 +1,14 @@
-﻿using Travelers.Communication.Requests;
+﻿using FluentValidation.Results;
+using Travelers.Communication.Requests;
 using Travelers.Communication.Responses;
 using Travelers.Domain.Interfaces.Repositories;
 using Travelers.Domain.Interfaces.Security.Cryptography;
 using Travelers.Domain.Interfaces.Security.Token;
 using Travelers.Domain.Mappings.User;
 using Travelers.Domain.Repositories;
+using Travelers.Domain.Validators.User;
+using Travelers.Exception;
+using Travelers.Exception.ExceptionBase;
 
 namespace Travelers.Application.UseCases.User;
 
@@ -47,9 +51,16 @@ public class RegisterUserUseCase : IRegisterUserUseCase
 
     private async Task Validate(UserRequest request, CancellationToken ct)
     {
+        var validation = await new UserRequestValidator().ValidateAsync(request, ct);
+        
         var emailExists = await _userReadOnlyRepository.ExistActiveUserWithEmail(request.TxEmail, ct);
 
         if (emailExists)
-            throw new Exception("Email already registered.");
+            validation.Errors.Add(new ValidationFailure(string.Empty, ErrorMessagesResource.EMAIL_ALREADY_REGISTERED));
+        
+        if (validation.IsValid) return;
+        
+        var errorMessages = validation.Errors.Select(f => f.ErrorMessage).ToList();
+        throw new ErrorOnValidationException(errorMessages);
     }
 }

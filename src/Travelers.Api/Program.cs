@@ -4,6 +4,7 @@ using FastEndpoints.Swagger;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Travelers.Api;
+using Travelers.Api.Filters;
 using Travelers.Application;
 using Travelers.Infrastructure;
 using Travelers.Infrastructure.Migrations;
@@ -16,6 +17,7 @@ builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.AddAuthorization();
 builder.Services.AddAuthentication();
 builder.Services.AddApplication();
+builder.Services.AddMvc(options => options.Filters.Add(typeof(ExceptionFilter)));
 
 builder.Services
     .AddAuthentication(config =>

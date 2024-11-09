@@ -25,6 +25,6 @@ public class RegisterUserEndpoint : Endpoint<UserRequest, UserResponse>
     {
         var response = await _registerUserUseCase.ExecuteAsync(req, ct);
         
-        await SendOkAsync(response, ct);
+        await SendCreatedAtAsync<RegisterUserEndpoint>(string.Empty, response,null,null,false, ct);
     }
 }

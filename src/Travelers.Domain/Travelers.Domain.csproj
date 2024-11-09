@@ -8,6 +8,11 @@
 
     <ItemGroup>
       <ProjectReference Include="..\Travelers.Communication\Travelers.Communication.csproj" />
+      <ProjectReference Include="..\Travelers.Exception\Travelers.Exception.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="FluentValidation" Version="11.10.0" />
     </ItemGroup>
 
 </Project>
